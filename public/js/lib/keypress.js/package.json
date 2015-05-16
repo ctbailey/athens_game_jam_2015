@@ -1,0 +1,45 @@
+{
+  "name": "keypress.js",
+  "version": "2.1.0-1",
+  "description": "The Keypress.js library",
+  "main": "keypress.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UmbraEngineering/keypress-npm"
+  },
+  "keywords": [
+    "keypress",
+    "keystroke",
+    "events"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/dmauro/Keypress/issues"
+  },
+  "homepage": "http://dmauro.github.io/Keypress/",
+  "gitHead": "9950156cded9d995511563ded15510d8ae935972",
+  "_id": "keypress.js@2.1.0-1",
+  "_shasum": "8ec77647bc119c9f611f5a749068ce95e82df307",
+  "_from": "keypress.js@",
+  "_npmVersion": "2.4.1",
+  "_nodeVersion": "0.10.33",
+  "_npmUser": {
+    "name": "k",
+    "email": "kbjr14@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "k",
+      "email": "kbjr14@gmail.com"
+    }
+  ],
+  "dist": {
+    "shasum": "8ec77647bc119c9f611f5a749068ce95e82df307",
+    "tarball": "http://registry.npmjs.org/keypress.js/-/keypress.js-2.1.0-1.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/keypress.js/-/keypress.js-2.1.0-1.tgz"
+}
