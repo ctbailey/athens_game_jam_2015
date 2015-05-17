@@ -8,14 +8,19 @@ var timestamp = require('./timestamp');
 var em = require('./event_manager');
 
 var anchor = { x: 0.5, y: 0.5 };
-var imagePath = "img/enemy.png";
 
-var smallWidth = 50;
-var smallHeight = 50;
-var bigWidth = 60;
-var bigHeight = 60;
+var smallWidth = 30;
+var smallHeight = 30;
+var bigWidth = 35;
+var bigHeight = 35;
 
+var enemyType = 0;
 module.exports = function() {
+  var imagePath = "img/evil_enemy";
+  imagePath += enemyType++ + '.png';
+  if (enemyType === 3) {
+    enemyType = 0;
+  }
   var enemy = spriteFromImage(imagePath, anchor);
   var x = Math.random() * window.innerWidth;
   var y = enemy.height * anchor.y ;
@@ -29,7 +34,14 @@ module.exports = function() {
       height: enemy.height
     };
   };
-  enemy.pulsing = true; //(Math.random() > 0.7);
+  enemy.pulsing = (Math.random() > 0.7);
+  if(enemy.pulsing) {
+    enemy.width = bigWidth;
+    enemy.height = bigHeight;
+  } else {
+    enemy.width = smallWidth;
+    enemy.height = smallHeight;
+  }
   em.on('beat', function() {
     enemy.pulsing = !enemy.pulsing;
     if(enemy.pulsing) {
@@ -47,10 +59,10 @@ module.exports = function() {
   enemy.fire = function() {
     var bulletAnchor = { x: 0.5, y: 0 }; 
     var startPos = { x: enemy.x, y: enemy.y };
-    var imagePath = "img/phonon1.png";
+    var imagePath = "img/enemy_ray.png";
     var bullet = spriteFromImage(imagePath, bulletAnchor, startPos);
-    bullet.width = 20;
-    bullet.height = 50;
+    bullet.width = 10;
+    bullet.height = 30;
     bullet.hitBox = function() { 
       var bb = {
         x: bullet.x - (bullet.width * bulletAnchor.x), 

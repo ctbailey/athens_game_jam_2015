@@ -15,7 +15,7 @@ module.exports = function loop() {
 };
 
 
-},{"./backing_track":3,"./event_manager":9}],2:[function(require,module,exports){
+},{"./backing_track":3,"./event_manager":10}],2:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -31,16 +31,80 @@ function makeBackground() {
 
 module.exports = background;
 
-},{"./sprite_from_image":21}],3:[function(require,module,exports){
-// var ambience = new Howl({
+},{"./sprite_from_image":25}],3:[function(require,module,exports){
+var ambiencePlaying = false;
+
+var ambience = new Howl({
+  urls: ['audio/ambience.mp3'],
+  loop: true
+});
+
+var outro = new Howl({
+  urls: ['audio/outro.mp3'],
+  onplay: function() {
+    nowPlaying.stop();
+    nowPlaying = loop1;
+  }
+});
+// var engine = new Howl({
 //   urls: ['audio/player_engine_normal.mp3'],
 //   loop: true
 // });
+var intro = new Howl({
+  urls: ['audio/intro.mp3'],
+  onplay: function() {
+    nowPlaying = intro;
+  },
+  onend: function () {
+    loop1.play();
+  },
+  autoplay: true
+});
 
-var audio = new Howl({
-  urls: ['audio/backing_track.mp3'],
+var nowPlaying = intro;
+
+var loop1 = new Howl({
+  urls: ['audio/level_loop1.mp3'],
+  onplay: function() {
+    nowPlaying.stop();
+    nowPlaying = loop1;
+  },
   onend: function() {
-    audio.play();
+    if(!ambiencePlaying) {
+      ambience.play();
+      ambiencePlaying = true;
+    }
+    loop2.play();
+  }
+});
+var loop2 = new Howl({
+  urls: ['audio/level_loop2.mp3'],
+  onplay: function() {
+    nowPlaying.stop();
+    nowPlaying = loop2;
+  },
+  onend: function() {
+    loop3.play();
+  }
+});
+var loop3 = new Howl({
+  urls: ['audio/level_loop3.mp3'],
+  onplay: function() {
+    nowPlaying.stop();
+    nowPlaying = loop3;
+  },
+  onend: function() {
+    loop1.play();
+  }
+});
+var preboss = new Howl({
+  urls: ['audio/preboss.mp3'],
+  onplay: function() {
+    nowPlaying.stop();
+    nowPlaying = preboss;
+  },
+  onend: function() {
+    loop3.play();
   }
 });
 
@@ -49,7 +113,7 @@ var audioDuration = 17.455600907029478; // seconds
 var beatDuration = audioDuration / numBeats;
 
 function getTiming() {
-  var currentPos = audio.pos();
+  var currentPos = nowPlaying.pos();
   var currentPosInBeats = currentPos / beatDuration;
   var closestBeatPos = Math.round(currentPosInBeats) * beatDuration;
   var distanceToClosestBeat = currentPos - closestBeatPos;
@@ -62,12 +126,33 @@ function getTiming() {
   };
 }
 
+function getTrack(name) {
+  switch(name) {
+    case "loop1":
+      return loop1;
+    case "loop2":
+      return loop2;
+    case "loop3":
+      return loop3;
+    case "preboss":
+      return preboss;
+    case "outro":
+      return outro;
+    case "ambience":
+      return ambience;
+    case "intro":
+      return intro;
+    case "now playing":
+      return nowPlaying;
+  }
+}
+
 module.exports = {
   numBeats: numBeats,
   duration: audioDuration,
   beatDuration: beatDuration,
   getTiming: getTiming,
-  audio: audio
+  getTrack: getTrack
 };
 
 },{}],4:[function(require,module,exports){
@@ -101,14 +186,19 @@ var timestamp = require('./timestamp');
 var em = require('./event_manager');
 
 var anchor = { x: 0.5, y: 0.5 };
-var imagePath = "img/enemy.png";
 
-var smallWidth = 50;
-var smallHeight = 50;
-var bigWidth = 60;
-var bigHeight = 60;
+var smallWidth = 30;
+var smallHeight = 30;
+var bigWidth = 35;
+var bigHeight = 35;
 
+var enemyType = 0;
 module.exports = function() {
+  var imagePath = "img/evil_enemy";
+  imagePath += enemyType++ + '.png';
+  if (enemyType === 3) {
+    enemyType = 0;
+  }
   var enemy = spriteFromImage(imagePath, anchor);
   var x = Math.random() * window.innerWidth;
   var y = enemy.height * anchor.y ;
@@ -122,7 +212,14 @@ module.exports = function() {
       height: enemy.height
     };
   };
-  enemy.pulsing = true; //(Math.random() > 0.7);
+  enemy.pulsing = (Math.random() > 0.7);
+  if(enemy.pulsing) {
+    enemy.width = bigWidth;
+    enemy.height = bigHeight;
+  } else {
+    enemy.width = smallWidth;
+    enemy.height = smallHeight;
+  }
   em.on('beat', function() {
     enemy.pulsing = !enemy.pulsing;
     if(enemy.pulsing) {
@@ -140,10 +237,10 @@ module.exports = function() {
   enemy.fire = function() {
     var bulletAnchor = { x: 0.5, y: 0 }; 
     var startPos = { x: enemy.x, y: enemy.y };
-    var imagePath = "img/phonon1.png";
+    var imagePath = "img/enemy_ray.png";
     var bullet = spriteFromImage(imagePath, bulletAnchor, startPos);
-    bullet.width = 20;
-    bullet.height = 50;
+    bullet.width = 10;
+    bullet.height = 30;
     bullet.hitBox = function() { 
       var bb = {
         x: bullet.x - (bullet.width * bulletAnchor.x), 
@@ -161,7 +258,7 @@ module.exports = function() {
   return enemy;
 };
 
-},{"./enemy_bullets":7,"./event_manager":9,"./sprite_from_image":21,"./stage":23,"./timestamp":24}],7:[function(require,module,exports){
+},{"./enemy_bullets":7,"./event_manager":10,"./sprite_from_image":25,"./stage":27,"./timestamp":28}],7:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -169,6 +266,31 @@ var enemyBullets = [];
 module.exports = enemyBullets;
 
 },{}],8:[function(require,module,exports){
+var stage = require('./stage');
+var em = require('./event_manager');
+
+var enemyKilledCount = 0;
+var text;
+var enemiesKilledLabel =   " / 50";
+
+function updateEnemyKilledCount() {
+  text.setText(enemyKilledCount + enemiesKilledLabel);
+}
+
+module.exports = function() {
+  text = new PIXI.Text(enemyKilledCount + enemiesKilledLabel, {font: "50px Arial", fill: "yellow", align: "center"});
+  text.x = 0;
+  text.y = 0;
+  stage.addChild(text);
+
+console.log('init enem counter');
+  em.on('enemy killed', function() {
+    enemyKilledCount++;
+    updateEnemyKilledCount();
+  });
+};
+
+},{"./event_manager":10,"./stage":27}],9:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -178,6 +300,12 @@ var util = require('./util');
 var player = require('./player');
 var collision = require('./collision');
 var sfx = require('./sfx');
+var gameStart = require('./game_start_time');
+var preboss = require('./preboss');
+var updateHealthDisplay = require('./health_meter');
+var em = require('./event_manager');
+var enemyCounter = require('./enemy_counter');
+var warning = "Beethoven 9000 has dispatched \na ton of forces.\nWhat a jerk.\n\nKill 50 to win.";
 
 var makeEnemy = require('./enemy');
 var enemies = require('./enemies');
@@ -195,16 +323,13 @@ function enemyPhysics(dt) {
     }
     enemy.y += 100 * dt;
     if (!util.isOnStage(enemy)) {
-      console.log('marking enemy for removal!');
       enemiesToRemove.push(enemy);
     }
   });
 
   enemiesToRemove.forEach(function(enemy) {
-    console.log('before ' + enemies.length);
     stage.removeChild(enemy);
     util.remove(enemies, enemy);
-    console.log('after ' + enemies.length);
   });
 
   bullets(dt);
@@ -212,11 +337,74 @@ function enemyPhysics(dt) {
 
 var lastSpawnTime = 0;
 function shouldSpawnEnemy() {
-  return util.timeElapsedSince(lastSpawnTime) > 1000 && enemies.length < 20; 
+  return util.timeElapsedSince(lastSpawnTime) > spawnDelay() && enemies.length < maxEnemies();
+}
+
+var durationBeforeBoss = 15  * 1000;
+var minEnemies = 1;
+var transitionedToPreboss = false;
+var bossFight = false;
+var enemiesKilledDuringBossFight = 0;
+var alreadyWon = false;
+function boss() {
+  enemyCounter();
+  em.on('enemy killed', function() { // boss fight enemy kills counted here
+    enemiesKilledDuringBossFight++;
+    if(enemiesKilledDuringBossFight > 49) {
+      bossFight = false;
+      if(!alreadyWon) {
+        alreadyWon = true;
+        preboss(null, "Congratulations! You beat B9.", 200000, "outro");
+      }
+    }
+  });
+  bossFight = true;
+}
+
+function lerp(initial, target) {
+  var t;
+  if(!gameStart.introEnd) {
+    t = 0;
+  } else {
+    t = util.timeElapsedSince(gameStart.introEnd) / durationBeforeBoss;
+    if(t > 1) {
+      t = 0;
+      minEnemies = 0;
+      if(enemies.length === 0 && !transitionedToPreboss) {
+        transitionedToPreboss = true;
+        preboss(boss, warning, 2000, "preboss");
+      }
+    }
+  }
+
+  return target + t * (initial - target);
+}
+function maxEnemies() {
+  var mx = lerp(50, minEnemies);
+  if(bossFight) {
+    mx = 150;
+  }
+  return mx;
+}
+
+function spawnDelay() {
+  var del = lerp(500, 1000);
+  if(bossFight) {
+    del = 100;
+  }
+  return del;
 }
 
 function shouldFire(enemy) {
-  return util.timeElapsedSince(enemy.lastFired) > 5000;
+  return util.timeElapsedSince(enemy.lastFired) > enemyFireRate();
+}
+
+function enemyFireRate() {
+  var fireRate = lerp(1000, 5000);
+  if(bossFight) {
+    fireRate = 10000;
+  }
+  return fireRate;
 }
 
 function spawnEnemy() {
@@ -226,7 +414,7 @@ function spawnEnemy() {
   return enemy;
 }
 
-var bulletSpeed = 300;
+var bulletSpeed = 200;
 function bullets(dt) {
 
   function update(bullet) {
@@ -251,7 +439,11 @@ function checkCollisions(bullet) {
     sfx.onPlayerDamaged.play();
     // decrease health
     player.health--;
+    updateHealthDisplay();
     console.log(player.health);
+    if(player.health < 1) {
+      stage.removeChild(player);
+    }
     util.remove(enemyBullets, bullet);
     stage.removeChild(bullet);
   }
@@ -259,7 +451,7 @@ function checkCollisions(bullet) {
 
 module.exports = enemyPhysics;
 
-},{"./collision":4,"./enemies":5,"./enemy":6,"./enemy_bullets":7,"./player":15,"./sfx":19,"./stage":23,"./timestamp":24,"./util":25}],9:[function(require,module,exports){
+},{"./collision":4,"./enemies":5,"./enemy":6,"./enemy_bullets":7,"./enemy_counter":8,"./event_manager":10,"./game_start_time":13,"./health_meter":14,"./player":18,"./preboss":21,"./sfx":23,"./stage":27,"./timestamp":28,"./util":29}],10:[function(require,module,exports){
 var util = require('./util');
 var listeners = {};
 
@@ -296,7 +488,7 @@ var eventManager = {
 
 module.exports = eventManager;
 
-},{"./util":25}],10:[function(require,module,exports){
+},{"./util":29}],11:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -336,7 +528,7 @@ module.exports = function fire(player) {
   if(i > 1) i = 0;
 };
 
-},{"./player_bullets":16,"./sprite_from_image":21,"./stage":23}],11:[function(require,module,exports){
+},{"./player_bullets":19,"./sprite_from_image":25,"./stage":27}],12:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -352,7 +544,6 @@ var now,
     physicsStep = 1/60;
 
 function frame() {
-  console.log('looping...');
   now = timestamp();
   dt += Math.min(1, (now - last) / 1000);
   while(dt > physicsStep) {
@@ -365,40 +556,85 @@ function frame() {
   requestAnimationFrame(frame);
 }
 
-setTimeout(function() {
-  intro(frame);
-}, 4000);
-
+requestAnimationFrame(frame);
+intro(function() {
+});
 module.exports = frame;
-},{"./audio_loop":1,"./intro":12,"./physics":14,"./render":18,"./timestamp":24}],12:[function(require,module,exports){
+
+},{"./audio_loop":1,"./intro":15,"./physics":17,"./render":22,"./timestamp":28}],13:[function(require,module,exports){
+module.exports = {
+  introEnd: null
+};
+
+},{}],14:[function(require,module,exports){
+var stage = require('./stage');
+var spriteFromImage = require('./sprite_from_image');
+var player = require('./player');
+var util = require('./util');
+var healthSprites = [];
+
+function removeSprite(sp) {
+  stage.removeChild(sp);
+}
+
+var anchor = {x: 1, y: 1 };
+function updateHealthDisplay() {
+  healthSprites.forEach(removeSprite);
+  healthSprites = [];
+
+  for(var i = 0; i < player.health; i++) {
+    var healthSprite = spriteFromImage("img/player0.png", anchor);
+    healthSprite.width = 35;
+    healthSprite.height = 35;
+    healthSprite.x = window.innerWidth;
+    healthSprite.y = window.innerHeight - (healthSprite.height * i);
+    stage.addChild(healthSprite);
+    healthSprites.push(healthSprite);
+  }
+}
+
+updateHealthDisplay();
+
+module.exports = updateHealthDisplay;
+
+},{"./player":18,"./sprite_from_image":25,"./stage":27,"./util":29}],15:[function(require,module,exports){
 var stage = require('./stage');
 var background = require('./background');
+var backingTrack = require('./backing_track');
+var keyboard = require('./keyboard');
+var gameStart = require('./game_start_time');
+var timestamp = require('./timestamp');
+var updateHealthDisplay = require('./health_meter');
 
 var copy = "A long, long time ago in a galaxy\na moderate distance away, the \nE.E.E.E.E.E.E.E., commonly\nknown as the Alliance of the\nEight E's, lent their greatest\nmusical instruments, the Really\nSacred Utensils of Whimsical\nDelight, to the famed robot\ncomposer, Beethoven 9000.\n\nThey were like, \"Don\'t lose these man.\"\nBut he did even worse.\nBeethoven 9000 stole them to use for his \nEvil Crystalline Orchestra of Doom.\n\nWhat a jerk.\n\nSomeone has to get them back.\nLooks like it's gonna be you.\nTap SPACE with the music.\nMove with WASD.\n\nGood luck.";
 
-var introMusicLoop = new Howl({
-  urls: ['audio/intro_loop.mp3'],
-  loop: true
-});
+//var introMusicLoop = new Howl({
+  //urls: ['audio/intro_loop.mp3'],
+  //onplay: function() {
+    //backingTrack.getTrack("ambience").play();
+  //},
+  //loop: true
+//});
 
-var introMusic = new Howl({
-  urls: ['audio/intro.mp3'],
-  autoplay: true,
-  onend: function () {
-    introMusicLoop.play();
-  }
-});
+var skippedIntro = false;
 
-function intro(callback) {
-  requestAnimationFrame(callback);
+function intro(onIntroFinished) {
   var text = new PIXI.Text(copy, {font: "70px Arial", fill: "yellow", align: "center"});
   text.anchor.y = 0;
   text.anchor.x = 0.5;
   text.x = window.innerWidth / 2;
-  text.y = window.innerHeight;
+  text.y = window.innerHeight + 0;
   stage.addChild(text);
   background.alpha = 0;
-  var delay = 15;
+  var delay = 30;
+  var scrollrate = 1.5;
+
+  var enterKey = keyboard(13);
+  enterKey.press = function skip() {
+    skippedIntro = true;
+    delay = 1;
+    scrollrate = 5;
+  };
 
   function alphaLerp(textY) {
     var t = (textY + text.height) / (window.innerHeight + text.height);
@@ -406,7 +642,7 @@ function intro(callback) {
   }
   setTimeout(scrollText, delay);
   function scrollText() {
-    text.y -= 1.5;
+    text.y -= scrollrate;
     // linear interpolation between
     // alpha = 0 at the beginning
     // and alpha = 1 at the end
@@ -416,14 +652,18 @@ function intro(callback) {
     } else {
       stage.removeChild(text);
       background.alpha = 1;
-      
+      gameStart.introEnd = timestamp();
+      updateHealthDisplay();
+      if(skippedIntro) {
+        backingTrack.getTrack("loop1").play();
+      }
     }
   }
 }
 
 module.exports = intro;
 
-},{"./background":2,"./stage":23}],13:[function(require,module,exports){
+},{"./background":2,"./backing_track":3,"./game_start_time":13,"./health_meter":14,"./keyboard":16,"./stage":27,"./timestamp":28}],16:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -464,7 +704,7 @@ module.exports = function keyboard(keyCode) {
   return key;
 };
 
-},{}],14:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -478,7 +718,7 @@ function physics(dt) {
 
 module.exports = physics;
 
-},{"./enemy_physics":8,"./player_physics":17}],15:[function(require,module,exports){
+},{"./enemy_physics":9,"./player_physics":20}],18:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -504,8 +744,8 @@ function makePlayer() {
   }
   var player = spriteFromImages(imagePaths, playerAnchor, playerStartPos);
 
-  player.width = 75;
-  player.height = 75;
+  player.width = 60;
+  player.height = 60;
   player.hitBox = function () {
     var bb = {
         x: player.x - (player.width * playerAnchor.x), 
@@ -544,7 +784,6 @@ function playerInput() {
   
   fireKey.press = function logShot() {
     if (canFire()) {
-      console.log('something');
       lastShotTime = timestamp();
       var shots = sound.makeShots();
       if(shots[0].rating === "perfect") {
@@ -570,7 +809,7 @@ function playerInput() {
 }
 
 function canFire() {
-  return util.timeElapsedSince(lastShotTime) > 500;
+  return util.timeElapsedSince(lastShotTime) > 500 && player.health > 0;
 }
 
 
@@ -585,16 +824,18 @@ function shoot(shot) {
   };
 }
 
+
+
 module.exports = player;
 
-},{"./fire":10,"./keyboard":13,"./sfx":19,"./sound":20,"./sprite_from_images":22,"./timestamp":24,"./util":25}],16:[function(require,module,exports){
+},{"./fire":11,"./keyboard":16,"./sfx":23,"./sound":24,"./sprite_from_images":26,"./timestamp":28,"./util":29}],19:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
 var playerBullets = [];
 module.exports = playerBullets;
 
-},{}],17:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -606,20 +847,24 @@ var enemies = require('./enemies');
 var collision = require('./collision');
 var sfx = require('./sfx');
 var util = require('./util');
+var em = require('./event_manager');
 
 var playerSpeed = 500; // px per second
 var phononSpeed = 600;
 
 function playerPhysics(dt) {
-  move(dt);
   bullets(dt);
+  if(player.health < 1) {
+    return;
+  }
+  move(dt);
 }
 
 function move(dt) {
-  if(player.input.left()) player.x += -playerSpeed * dt;
-  if(player.input.right()) player.x += playerSpeed * dt;
-  if(player.input.down()) player.y += playerSpeed * dt;
-  if(player.input.up()) player.y += -playerSpeed * dt;
+  if(player.input.left() && player.x > 0) player.x += -playerSpeed * dt;
+  if(player.input.right() && player.x < window.innerWidth) player.x += playerSpeed * dt;
+  if(player.input.down() && player.y < window.innerHeight) player.y += playerSpeed * dt;
+  if(player.input.up() && player.y > 0) player.y += -playerSpeed * dt;
 }
 
 function bullets(dt) {
@@ -641,8 +886,13 @@ function checkCollisions(bullet) {
   enemies.forEach(function(enemy) {
     var c = collision(bullet.hitBox(), enemy.hitBox());
     if(c) {
+      em.notify('enemy killed');
       util.remove(enemies, enemy);
       stage.removeChild(enemy);
+
+      util.remove(playerBullets, bullet);
+      stage.removeChild(bullet);
+
       sfx.onEnemyDamaged.play();
     }
   });
@@ -650,7 +900,61 @@ function checkCollisions(bullet) {
 
 module.exports = playerPhysics;
 
-},{"./collision":4,"./enemies":5,"./player":15,"./player_bullets":16,"./sfx":19,"./stage":23,"./util":25}],18:[function(require,module,exports){
+},{"./collision":4,"./enemies":5,"./event_manager":10,"./player":18,"./player_bullets":19,"./sfx":23,"./stage":27,"./util":29}],21:[function(require,module,exports){
+var background = require('./background');
+var stage = require('./stage');
+var backingTrack = require('./backing_track');
+
+module.exports = function(callback, words, duration, trak) {
+  backingTrack.getTrack(trak).play();
+ function fadeOutScreen() {
+   background.alpha -= 0.01;
+   if(background.alpha > 0) {
+     setTimeout(fadeOutScreen, 40);
+   } else {
+     fadeInText();
+   }
+ } 
+
+ function fadeInText() {
+   text.alpha += 0.01;
+   if(text.alpha < 1) {
+     setTimeout(fadeInText, 10);
+   } else {
+     setTimeout(function() {
+       fadeOutText();
+       fadeInScreen();
+     }, duration);
+   }
+ }
+
+ function fadeOutText() {
+   text.alpha -= 0.01;
+   if(text.alpha > 0) {
+     setTimeout(fadeOutText, 10);
+   } 
+ }
+
+ function fadeInScreen() {
+   background.alpha += 0.01;
+   if(background.alpha < 1) {
+     setTimeout(fadeInScreen, 10);
+   } else {
+     callback();
+   }
+ }
+ var text = new PIXI.Text(words, {font: "70px Arial", fill: "yellow", align: "center"});
+ text.anchor.y = 0.5;
+ text.anchor.x = 0.5;
+ text.x = window.innerWidth / 2;
+ text.y = window.innerHeight / 2;
+ stage.addChild(text);
+ text.alpha = 0;
+ fadeOutScreen();
+
+};
+
+},{"./background":2,"./backing_track":3,"./stage":27}],22:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -671,17 +975,20 @@ module.exports = function render(dt) {
   renderer.render(stage);
 };
 
-},{"./background":2,"./enemies":5,"./physics":14,"./player":15,"./stage":23}],19:[function(require,module,exports){
+},{"./background":2,"./enemies":5,"./physics":17,"./player":18,"./stage":27}],23:[function(require,module,exports){
 var perfect = new Howl({
-  urls: ['audio/on_player_fire_perfect.mp3']
+  urls: ['audio/on_player_fire_perfect.mp3'],
+  volume: 0.3
 });
 
 var good = new Howl({
-  urls: ['audio/on_player_fire_good.mp3']
+  urls: ['audio/on_player_fire_good.mp3'],
+  volume: 0.3
 });
 
 var bad = new Howl({
-  urls: ['audio/on_player_fire_bad.mp3']
+  urls: ['audio/on_player_fire_bad.mp3'],
+  volume: 0.3
 });
 
 var onPlayerFire = function (rating) {
@@ -696,11 +1003,13 @@ var onPlayerFire = function (rating) {
 };
 
 var onPlayerDamaged = new Howl({
-  urls: ['audio/on_player_damaged.mp3']
+  urls: ['audio/on_player_damaged.mp3'],
+  volume: 0.3
 });
 
 var onEnemyDamaged = new Howl({
-  urls: ['audio/enemy_ded.mp3']
+  urls: ['audio/enemy_ded.mp3'],
+  volume: 0.1
 });
 
 module.exports = {
@@ -709,7 +1018,8 @@ module.exports = {
   // onEnemyFire: onEnemyFire,
   onEnemyDamaged: onEnemyDamaged
 };
-},{}],20:[function(require,module,exports){
+
+},{}],24:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -764,7 +1074,7 @@ module.exports = {
   makeShots: makeShots
 };
 
-},{"./backing_track":3,"./timestamp":24}],21:[function(require,module,exports){
+},{"./backing_track":3,"./timestamp":28}],25:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -785,7 +1095,7 @@ module.exports = function spriteFromImage(path, anchor, position) {
   return sprite;
 };
 
-},{}],22:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -806,14 +1116,14 @@ module.exports = function spriteFromImages(paths, anchor, position) {
   return sprite;
 };
 
-},{}],23:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
 var stage = new PIXI.Stage(0x66FF99);
 module.exports = stage;
 
-},{}],24:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /* jshint browserify: true */
 'use strict';
 
@@ -821,7 +1131,7 @@ module.exports = function timestamp() {
   return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
 };
 
-},{}],25:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 // jshint browserify: true 
 // jshint browser: true
 
@@ -853,4 +1163,4 @@ module.exports = {
   timeElapsedSince: timeElapsedSince
 };
 
-},{"./stage":23,"./timestamp":24}]},{},[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]);
+},{"./stage":27,"./timestamp":28}]},{},[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29]);

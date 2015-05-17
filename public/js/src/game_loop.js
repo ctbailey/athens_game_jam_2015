@@ -13,7 +13,6 @@ var now,
     physicsStep = 1/60;
 
 function frame() {
-  console.log('looping...');
   now = timestamp();
   dt += Math.min(1, (now - last) / 1000);
   while(dt > physicsStep) {
@@ -26,8 +25,7 @@ function frame() {
   requestAnimationFrame(frame);
 }
 
-setTimeout(function() {
-  intro(frame);
-}, 4000);
-
+requestAnimationFrame(frame);
+intro(function() {
+});
 module.exports = frame;

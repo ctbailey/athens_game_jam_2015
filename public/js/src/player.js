@@ -23,8 +23,8 @@ function makePlayer() {
   }
   var player = spriteFromImages(imagePaths, playerAnchor, playerStartPos);
 
-  player.width = 75;
-  player.height = 75;
+  player.width = 60;
+  player.height = 60;
   player.hitBox = function () {
     var bb = {
         x: player.x - (player.width * playerAnchor.x), 
@@ -63,7 +63,6 @@ function playerInput() {
   
   fireKey.press = function logShot() {
     if (canFire()) {
-      console.log('something');
       lastShotTime = timestamp();
       var shots = sound.makeShots();
       if(shots[0].rating === "perfect") {
@@ -89,7 +88,7 @@ function playerInput() {
 }
 
 function canFire() {
-  return util.timeElapsedSince(lastShotTime) > 500;
+  return util.timeElapsedSince(lastShotTime) > 500 && player.health > 0;
 }
 
 
@@ -103,5 +102,7 @@ function shoot(shot) {
     fire();
   };
 }
+
+
 
 module.exports = player;
