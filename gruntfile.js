@@ -1,3 +1,4 @@
+// jshint node: true
 'use strict';
 
 module.exports = function(grunt) {
@@ -5,8 +6,20 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
-      beforeconcat: ['public/js/src/**/*.js'],
-      afterconcat: ['public/js/dist/bundle.js']
+      options: {
+        browser: true,
+        browserify: true,
+        globals: {
+          console: true,
+          PIXI: true,
+          Howl: true
+        }
+      },
+      beforeconcat: {
+        files: {
+          src: ['public/js/src/**/*.js']
+        }
+      }
     },
     browserify: {
       main: {
