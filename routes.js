@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 
-createRoute('/', 'views/index.html');
+createRoute('/b9', 'b9/views/index.html');
 
 function createRoute(urlFragment, path) {
   router.get(urlFragment, function(req, res, next) {

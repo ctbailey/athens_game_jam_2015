@@ -3,6 +3,7 @@
 
 module.exports = function spriteFromImages(paths, anchor, position) {
   var textures = paths.map(function getTexture(path) {
+    path = "b9/" + path;
     return PIXI.Texture.fromImage(path);
   });
 

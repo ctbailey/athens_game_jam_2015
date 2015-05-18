@@ -17,18 +17,18 @@ module.exports = function(grunt) {
       },
       beforeconcat: {
         files: {
-          src: ['public/js/src/**/*.js']
+          src: ['public/b9/js/src/**/*.js']
         }
       }
     },
     browserify: {
       main: {
-        src: 'public/js/src/**/*.js',
-        dest: 'public/js/dist/bundle.js'
+        src: 'public/b9/js/src/**/*.js',
+        dest: 'public/b9/js/dist/bundle.js'
       }
     },
     watch: {
-      files: 'public/js/src/**/*',
+      files: 'public/b9/js/src/**/*',
       tasks: ['build']
     },
     nodemon: {
@@ -41,13 +41,6 @@ module.exports = function(grunt) {
       options: {
           logConcurrentOutput: true
       }
-    },
-    browserifyBower: {
-      options: {
-        file: 'public/js/dist/lib.js',
-        forceResolve: {},
-        shim: {}
-      }
     }
   });
 
@@ -56,9 +49,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-nodemon');
   grunt.loadNpmTasks('grunt-concurrent');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-browserify-bower');
   
   // Default task(s).
-  grunt.registerTask('build', ['jshint:beforeconcat', 'browserifyBower', 'browserify']);
+  grunt.registerTask('build', ['jshint:beforeconcat', 'browserify']);
   grunt.registerTask('default', ['build', 'concurrent:default']);
 };

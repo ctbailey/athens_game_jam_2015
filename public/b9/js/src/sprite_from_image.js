@@ -2,6 +2,7 @@
 'use strict';
 
 module.exports = function spriteFromImage(path, anchor, position) {
+  path = "b9/" + path;
   var texture = PIXI.Texture.fromImage(path);
   var sprite = new PIXI.Sprite(texture);
 

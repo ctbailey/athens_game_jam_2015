@@ -23,6 +23,7 @@
     "grunt-browserify": "^3.4.0",
     "grunt-concurrent": "^1.0.0",
     "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-watch": "^0.6.1",
     "grunt-nodemon": "^0.4.0",
     "howler": "^1.1.26",
     "jshint": "^2.6.0",

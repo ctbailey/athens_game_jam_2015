@@ -1,23 +1,23 @@
 var ambiencePlaying = false;
 
 var ambience = new Howl({
-  urls: ['audio/ambience.mp3'],
+  urls: ['b9/audio/ambience.mp3'],
   loop: true
 });
 
 var outro = new Howl({
-  urls: ['audio/outro.mp3'],
+  urls: ['b9/audio/outro.mp3'],
   onplay: function() {
     nowPlaying.stop();
     nowPlaying = loop1;
   }
 });
 // var engine = new Howl({
-//   urls: ['audio/player_engine_normal.mp3'],
+//   urls: ['b9/audio/player_engine_normal.mp3'],
 //   loop: true
 // });
 var intro = new Howl({
-  urls: ['audio/intro.mp3'],
+  urls: ['b9/audio/intro.mp3'],
   onplay: function() {
     nowPlaying = intro;
   },
@@ -30,7 +30,7 @@ var intro = new Howl({
 var nowPlaying = intro;
 
 var loop1 = new Howl({
-  urls: ['audio/level_loop1.mp3'],
+  urls: ['b9/audio/level_loop1.mp3'],
   onplay: function() {
     nowPlaying.stop();
     nowPlaying = loop1;
@@ -44,7 +44,7 @@ var loop1 = new Howl({
   }
 });
 var loop2 = new Howl({
-  urls: ['audio/level_loop2.mp3'],
+  urls: ['b9/audio/level_loop2.mp3'],
   onplay: function() {
     nowPlaying.stop();
     nowPlaying = loop2;
@@ -54,7 +54,7 @@ var loop2 = new Howl({
   }
 });
 var loop3 = new Howl({
-  urls: ['audio/level_loop3.mp3'],
+  urls: ['b9/audio/level_loop3.mp3'],
   onplay: function() {
     nowPlaying.stop();
     nowPlaying = loop3;
@@ -64,7 +64,7 @@ var loop3 = new Howl({
   }
 });
 var preboss = new Howl({
-  urls: ['audio/preboss.mp3'],
+  urls: ['b9/audio/preboss.mp3'],
   onplay: function() {
     nowPlaying.stop();
     nowPlaying = preboss;

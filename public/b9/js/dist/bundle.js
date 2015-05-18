@@ -35,23 +35,23 @@ module.exports = background;
 var ambiencePlaying = false;
 
 var ambience = new Howl({
-  urls: ['audio/ambience.mp3'],
+  urls: ['b9/audio/ambience.mp3'],
   loop: true
 });
 
 var outro = new Howl({
-  urls: ['audio/outro.mp3'],
+  urls: ['b9/audio/outro.mp3'],
   onplay: function() {
     nowPlaying.stop();
     nowPlaying = loop1;
   }
 });
 // var engine = new Howl({
-//   urls: ['audio/player_engine_normal.mp3'],
+//   urls: ['b9/audio/player_engine_normal.mp3'],
 //   loop: true
 // });
 var intro = new Howl({
-  urls: ['audio/intro.mp3'],
+  urls: ['b9/audio/intro.mp3'],
   onplay: function() {
     nowPlaying = intro;
   },
@@ -64,7 +64,7 @@ var intro = new Howl({
 var nowPlaying = intro;
 
 var loop1 = new Howl({
-  urls: ['audio/level_loop1.mp3'],
+  urls: ['b9/audio/level_loop1.mp3'],
   onplay: function() {
     nowPlaying.stop();
     nowPlaying = loop1;
@@ -78,7 +78,7 @@ var loop1 = new Howl({
   }
 });
 var loop2 = new Howl({
-  urls: ['audio/level_loop2.mp3'],
+  urls: ['b9/audio/level_loop2.mp3'],
   onplay: function() {
     nowPlaying.stop();
     nowPlaying = loop2;
@@ -88,7 +88,7 @@ var loop2 = new Howl({
   }
 });
 var loop3 = new Howl({
-  urls: ['audio/level_loop3.mp3'],
+  urls: ['b9/audio/level_loop3.mp3'],
   onplay: function() {
     nowPlaying.stop();
     nowPlaying = loop3;
@@ -98,7 +98,7 @@ var loop3 = new Howl({
   }
 });
 var preboss = new Howl({
-  urls: ['audio/preboss.mp3'],
+  urls: ['b9/audio/preboss.mp3'],
   onplay: function() {
     nowPlaying.stop();
     nowPlaying = preboss;
@@ -977,17 +977,17 @@ module.exports = function render(dt) {
 
 },{"./background":2,"./enemies":5,"./physics":17,"./player":18,"./stage":27}],23:[function(require,module,exports){
 var perfect = new Howl({
-  urls: ['audio/on_player_fire_perfect.mp3'],
+  urls: ['b9/audio/on_player_fire_perfect.mp3'],
   volume: 0.3
 });
 
 var good = new Howl({
-  urls: ['audio/on_player_fire_good.mp3'],
+  urls: ['b9/audio/on_player_fire_good.mp3'],
   volume: 0.3
 });
 
 var bad = new Howl({
-  urls: ['audio/on_player_fire_bad.mp3'],
+  urls: ['b9/audio/on_player_fire_bad.mp3'],
   volume: 0.3
 });
 
@@ -1003,12 +1003,12 @@ var onPlayerFire = function (rating) {
 };
 
 var onPlayerDamaged = new Howl({
-  urls: ['audio/on_player_damaged.mp3'],
+  urls: ['b9/audio/on_player_damaged.mp3'],
   volume: 0.3
 });
 
 var onEnemyDamaged = new Howl({
-  urls: ['audio/enemy_ded.mp3'],
+  urls: ['b9/audio/enemy_ded.mp3'],
   volume: 0.1
 });
 
@@ -1079,6 +1079,7 @@ module.exports = {
 'use strict';
 
 module.exports = function spriteFromImage(path, anchor, position) {
+  path = "b9/" + path;
   var texture = PIXI.Texture.fromImage(path);
   var sprite = new PIXI.Sprite(texture);
 
@@ -1101,6 +1102,7 @@ module.exports = function spriteFromImage(path, anchor, position) {
 
 module.exports = function spriteFromImages(paths, anchor, position) {
   var textures = paths.map(function getTexture(path) {
+    path = "b9/" + path;
     return PIXI.Texture.fromImage(path);
   });
 
